@@ -23,7 +23,6 @@ function StartVinScratch()
     vinBusy = false
 end
 
-RegisterNUICallback('vinScratch', function(_, cb) StartVinScratch(); cb(1) end)
 RegisterNetEvent('tommy_boosting:client:startVinScratch', StartVinScratch)
 RegisterNetEvent('tommy_boosting:client:vinResult', function(ok, msg)
     if ok then

@@ -19,3 +19,5 @@ RegisterNUICallback('adminForceComplete', function(data, cb) TriggerServerEvent(
 RegisterNetEvent('tommy_boosting:client:adminResult', function(ok, msg)
     Bridge.Notify(cache.serverId, msg or (ok and 'Admin action complete.' or 'Admin action failed.'), ok and 'success' or 'error')
 end)
+
+RegisterNUICallback('adminResetProfile', function(data, cb) TriggerServerEvent('tommy_boosting:server:adminAction', 'resetProfile', data); cb(1); end)
