@@ -29,6 +29,7 @@ client_scripts {
   'client/main.lua',
   'client/ui.lua',
   'client/contracts.lua',
+  'client/guards.lua',
   'client/hacking.lua',
   'client/tracker.lua',
   'client/vin.lua',
@@ -45,6 +46,7 @@ server_scripts {
   'server/leaderboard.lua',
   'server/vin.lua',
   'server/admin.lua',
+  'server/dispatch.lua',
   'server/contracts.lua',
   'server/callbacks.lua',
   'server/main.lua'
