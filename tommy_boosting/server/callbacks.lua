@@ -11,6 +11,7 @@ lib.callback.register('tommy_boosting:cb:getDashboard', function(src)
         active = Contracts.GetActive(src),
         available = Contracts.available[id] or Contracts.GenerateForPlayer(src),
         storeStock = Store.stock,
+        store = Config.Store.items,
         isAdmin = Security.IsPlayerAdmin(src)
     }
 end)

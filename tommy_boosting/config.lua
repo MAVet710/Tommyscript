@@ -34,5 +34,5 @@ Config.Store={enabled=true,infiniteStock=false,items={{item='tracker_remover',la
 Config.ContractTransfers={enabled=true,allowPrice=true,currency='crypto',allowAboveLevel=false}
 Config.VinScratch={enabled=true,requiredItem='vin_scratcher',costCrypto=100,allowedClasses={['A']=true,['S']=true,['S+']=true},timeSeconds=30,removeItemOnUse=true,saveToPlayerVehicles=true,completeStatus='completed_vin'}
 Config.Admin={enabled=true,useAce=true,acePermission='tommyboosting.admin',allowedGroups={'god','admin'},identifiers={'license:xxxxxxxx'}}
-Config.Security={dropOnExploit=false,logExploitAttempts=true,maxDropoffDistance=15.0,maxVehicleDistance=25.0}
+Config.Security={dropOnExploit=false,logExploitAttempts=true,maxDropoffDistance=15.0,maxVehicleDistance=25.0,allowStandaloneItemBypass=false,dropContractStatusOnDisconnect='cancelled'}
 Config.UI={theme='dark-orange'}
