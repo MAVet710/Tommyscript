@@ -45,11 +45,6 @@ function StartBoostingHack()
 end
 
 RegisterNetEvent('tommy_boosting:client:startHack', StartBoostingHack)
-RegisterNUICallback('startHack', function(_, cb)
-    StartBoostingHack()
-    cb(1)
-end)
-
 RegisterNetEvent('tommy_boosting:client:hackUpdated', function(success, attemptsUsed)
     if LocalState.activeContract then
         LocalState.activeContract.hack_completed = success and 1 or 0

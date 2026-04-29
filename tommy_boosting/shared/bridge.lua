@@ -19,6 +19,12 @@ function Bridge.GetMoney(src,a) if fw=='qb' then local p=QBCore.Functions.GetPla
 function Bridge.AddItem(src,item,amount,metadata) if GetResourceState('ox_inventory')=='started' and (Config.Inventory=='ox' or Config.Inventory=='auto') then return exports.ox_inventory:AddItem(src,item,amount,metadata) end if fw=='qb' then local p=QBCore.Functions.GetPlayer(src); return p and p.Functions.AddItem(item,amount,false,metadata) end if fw=='esx' then local p=ESX.GetPlayerFromId(src); if p then p.addInventoryItem(item,amount) return true end end return false end
 function Bridge.RemoveItem(src,item,amount) if GetResourceState('ox_inventory')=='started' and (Config.Inventory=='ox' or Config.Inventory=='auto') then return exports.ox_inventory:RemoveItem(src,item,amount) end return true end
 function Bridge.HasItem(src,item,amount) amount=amount or 1 if GetResourceState('ox_inventory')=='started' and (Config.Inventory=='ox' or Config.Inventory=='auto') then return (exports.ox_inventory:GetItemCount(src,item)>=amount) end return true end
-function Bridge.Notify(src,message,type) TriggerClientEvent('ox_lib:notify',src,{description=message,type=type or 'inform'}) end
+function Bridge.Notify(src,message,type)
+  if IsDuplicityVersion() then
+    TriggerClientEvent('ox_lib:notify', src, { description = message, type = type or 'inform' })
+  else
+    lib.notify({ description = message, type = type or 'inform' })
+  end
+end
 function Bridge.IsAdmin(src) return IsPlayerAceAllowed(src, Config.Admin.acePermission) end
 function Bridge.RegisterUsableItem(item,cb) if fw=='qb' then QBCore.Functions.CreateUseableItem(item, function(src,i) cb(src,i) end) elseif fw=='esx' then ESX.RegisterUsableItem(item,function(src) cb(src,{}) end) end end
