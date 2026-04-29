@@ -1,12 +1,13 @@
 # Tommy Boosting Install
-1. Import `sql/tommy_boosting.sql`.
-2. Add to `server.cfg`:
-   ensure oxmysql
-   ensure ox_lib
-   ensure tommy_boosting
-3. Add items: boosting_laptop, tracker_remover, hacking_device, vin_scratcher, advanced_lockpick.
-4. ACE: `add_ace group.admin tommyboosting.admin allow`.
-5. Configure `Config.Framework`, `Config.Inventory`, `Config.UseTarget`, `Config.TargetSystem`, and `Config.Dispatch` in `config.lua`.
-6. Open UI with `/boosting` or usable `boosting_laptop`.
-7. Test: accept contract -> find car -> hack/remove tracker (if required) -> deliver to dropoff.
-8. Troubleshooting: enable `Config.Debug=true`, confirm oxmysql/ox_lib started, check SQL imported.
+1. Place `tommy_boosting` in your resources folder.
+2. Import `sql/tommy_boosting.sql` into MariaDB/MySQL.
+3. Ensure order:
+   - ensure oxmysql
+   - ensure ox_lib
+   - ensure tommy_boosting
+4. Add items: boosting_laptop, tracker_remover, hacking_device, vin_scratcher, advanced_lockpick.
+5. ACE example: `add_ace group.admin tommyboosting.admin allow`
+6. Configure `Config.Framework` (`auto`,`qb`,`esx`,`standalone`).
+7. Configure dispatch via `Config.Dispatch.system` and optional custom function.
+8. Configure target via `Config.UseTarget` and `Config.TargetSystem`.
+9. Troubleshooting: turn `Config.Debug=true` and check server console.

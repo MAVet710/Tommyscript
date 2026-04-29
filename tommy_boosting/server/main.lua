@@ -1,98 +1,20 @@
-local function ensureProfile(src)
-    local identifier = Bridge.GetIdentifier(src)
-    if not identifier then return end
-    local name = Bridge.GetPlayerName(src) or GetPlayerName(src)
-    DB.update('INSERT INTO tommy_boosting_players (identifier,name,profile_name,last_active) VALUES (?,?,?,NOW()) ON DUPLICATE KEY UPDATE name=VALUES(name), last_active=NOW()', { identifier, name, name })
-end
+RegisterNetEvent('tommy_boosting:server:acceptContract', function(idx) local src=source; local ok,data=Contracts.Accept(src,idx); TriggerClientEvent('tommy_boosting:client:acceptResult',src,ok,data) end)
+RegisterNetEvent('tommy_boosting:server:completeContract', function(netId,coords) local src=source; local ok,data=Contracts.Complete(src,netId,coords); TriggerClientEvent('tommy_boosting:client:completeResult',src,ok,data) end)
+RegisterNetEvent('tommy_boosting:server:cancelContract', function() local src=source; local id=Bridge.GetIdentifier(src); local c=Contracts.activeByIdentifier[id]; if c then c.status='cancelled'; DB.update('UPDATE tommy_boosting_contracts SET status=? WHERE contract_id=?',{'cancelled',c.contract_id}); Contracts.activeByIdentifier[id]=nil end end)
+RegisterNetEvent('tommy_boosting:server:buyItem', function(item) local src=source; local ok,msg=Store.Buy(src,item); TriggerClientEvent('tommy_boosting:client:buyResult',src,ok,msg) end)
+RegisterNetEvent('tommy_boosting:server:vinScratch', function() local src=source; local ok,msg=Vin.Scratch(src); TriggerClientEvent('tommy_boosting:client:vinResult',src,ok,msg) end)
 
-RegisterNetEvent('tommy_boosting:server:acceptContract', function(index)
-    local src = source
-    local ok, data = Contracts.Accept(src, index)
-    TriggerClientEvent('tommy_boosting:client:acceptResult', src, ok, data)
-end)
+AddEventHandler('playerDropped', function() end)
+AddEventHandler('onResourceStart', function(r) if r~=GetCurrentResourceName() then return end print('Tommy Boosting started') end)
+CreateThread(function() while true do Wait(Config.ContractRefreshMinutes*60000) for _,src in ipairs(GetPlayers()) do Contracts.GenerateForPlayer(tonumber(src)) end end end)
 
-RegisterNetEvent('tommy_boosting:server:completeContract', function(coords)
-    local src = source
-    local ok, data = Contracts.Complete(src, coords)
-    TriggerClientEvent('tommy_boosting:client:completeResult', src, ok, data)
-end)
+exports('GetPlayerBoostingProfile', function(identifier) return DB.single('SELECT * FROM tommy_boosting_players WHERE identifier=?',{identifier}) end)
+exports('AddBoostingCrypto', function(identifier, amount) return DB.update('UPDATE tommy_boosting_players SET crypto = crypto + ? WHERE identifier=?',{amount,identifier}) end)
+exports('RemoveBoostingCrypto', function(identifier, amount) return DB.update('UPDATE tommy_boosting_players SET crypto = GREATEST(crypto-?,0) WHERE identifier=?',{amount,identifier}) end)
+exports('AddBoostingXP', function(identifier, amount) return DB.update('UPDATE tommy_boosting_players SET xp = xp + ? WHERE identifier=?',{amount,identifier}) end)
+exports('GenerateContractForPlayer', function(src, class) return Contracts.GenerateForPlayer(src, class) end)
+exports('CancelPlayerContract', function(src) local id=Bridge.GetIdentifier(src); Contracts.activeByIdentifier[id]=nil return true end)
 
-RegisterNetEvent('tommy_boosting:server:cancelContract', function()
-    local src = source
-    local ok, data = Contracts.Cancel(src)
-    TriggerClientEvent('tommy_boosting:client:cancelResult', src, ok, data)
-end)
-
-RegisterNetEvent('tommy_boosting:server:buyItem', function(item)
-    local src = source
-    local ok, msg = Store.Buy(src, item)
-    TriggerClientEvent('tommy_boosting:client:buyResult', src, ok, msg)
-end)
-
-RegisterNetEvent('tommy_boosting:server:vinScratch', function()
-    local src = source
-    local ok, msg = Vin.Scratch(src)
-    TriggerClientEvent('tommy_boosting:client:vinResult', src, ok, msg)
-end)
-
-AddEventHandler('playerDropped', function()
-    local src = source
-    local identifier = Bridge.GetIdentifier(src)
-    if identifier then
-        Contracts.CleanupPlayer(identifier)
-    end
-end)
-
-AddEventHandler('onResourceStart', function(resource)
-    if resource ~= GetCurrentResourceName() then return end
-    print('[Tommy Boosting] started')
-    for _, id in ipairs(GetPlayers()) do ensureProfile(tonumber(id)) end
-end)
-
-CreateThread(function()
-    while true do
-        Wait(Config.ContractRefreshMinutes * 60000)
-        for _, id in ipairs(GetPlayers()) do
-            Contracts.GenerateForPlayer(tonumber(id))
-        end
-    end
-end)
-
-RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
-    ensureProfile(source)
-end)
-
-RegisterNetEvent('esx:playerLoaded', function(playerId)
-    ensureProfile(playerId or source)
-end)
-
-exports('GetPlayerBoostingProfile', function(identifier)
-    return DB.single('SELECT * FROM tommy_boosting_players WHERE identifier=?', { identifier })
-end)
-exports('AddBoostingCrypto', function(identifier, amount)
-    return DB.update('UPDATE tommy_boosting_players SET crypto = crypto + ? WHERE identifier=?', { math.max(0, tonumber(amount) or 0), identifier })
-end)
-exports('RemoveBoostingCrypto', function(identifier, amount)
-    return DB.update('UPDATE tommy_boosting_players SET crypto = GREATEST(crypto-?,0) WHERE identifier=?', { math.max(0, tonumber(amount) or 0), identifier })
-end)
-exports('AddBoostingXP', function(identifier, amount)
-    return DB.update('UPDATE tommy_boosting_players SET xp = xp + ? WHERE identifier=?', { math.max(0, tonumber(amount) or 0), identifier })
-end)
-exports('GenerateContractForPlayer', function(src, class)
-    return Contracts.GenerateForPlayer(src, class)
-end)
-exports('CancelPlayerContract', function(src)
-    return Contracts.Cancel(src)
-end)
-
-
-RegisterNetEvent('tommy_boosting:server:hackResult', function(success)
-  local src=source
-  local ok,msg=Contracts.MarkHack(src, success==true)
-  TriggerClientEvent('tommy_boosting:client:hackUpdate', src, ok, msg)
-end)
-RegisterNetEvent('tommy_boosting:server:removeTracker', function(success)
-  local src=source
-  local ok,msg=Contracts.RemoveTracker(src, success==true)
-  TriggerClientEvent('tommy_boosting:client:trackerRemoved', src, ok, msg)
-end)
+CreateThread(function() while not GetResourceState('oxmysql')=='started' do Wait(100) end end)
+RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function() local src=source; local id=Bridge.GetIdentifier(src); local n=Bridge.GetPlayerName(src); DB.update('INSERT INTO tommy_boosting_players (identifier,name,profile_name,last_active) VALUES (?,?,?,NOW()) ON DUPLICATE KEY UPDATE name=VALUES(name), last_active=NOW()',{id,n,n}) end)
+RegisterNetEvent('esx:playerLoaded', function(src) local id=Bridge.GetIdentifier(src); local n=Bridge.GetPlayerName(src); DB.update('INSERT INTO tommy_boosting_players (identifier,name,profile_name,last_active) VALUES (?,?,?,NOW()) ON DUPLICATE KEY UPDATE name=VALUES(name), last_active=NOW()',{id,n,n}) end)
