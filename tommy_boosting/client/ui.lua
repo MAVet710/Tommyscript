@@ -6,3 +6,8 @@ RegisterNUICallback('getHistory', function(_,cb) cb(lib.callback.await('tommy_bo
 RegisterNUICallback('getLeaderboard', function(_,cb) cb(lib.callback.await('tommy_boosting:cb:getLeaderboard', false)) end)
 RegisterNetEvent('tommy_boosting:client:acceptResult', function(ok,data) if ok then LocalState.activeContract=data; TriggerEvent('tommy_boosting:client:startContract',data); Bridge.Notify(cache.serverId,'Contract accepted','success') else Bridge.Notify(cache.serverId,data,'error') end end)
 RegisterNetEvent('tommy_boosting:client:completeResult', function(ok,data) if ok then TriggerEvent('tommy_boosting:client:contractCompleted',data); Bridge.Notify(cache.serverId,'Contract delivered','success') else Bridge.Notify(cache.serverId,data,'error') end end)
+RegisterNUICallback('startHack', function(_,cb) TriggerEvent('tommy_boosting:client:startHack'); cb(1) end)
+RegisterNUICallback('removeTracker', function(_,cb) TriggerEvent('tommy_boosting:client:removeTracker'); cb(1) end)
+RegisterNUICallback('cancelContract', function(_,cb) TriggerServerEvent('tommy_boosting:server:cancelContract'); cb(1) end)
+RegisterNUICallback('updateProfile', function(data,cb) cb(lib.callback.await('tommy_boosting:cb:updateProfile', false, data)) end)
+RegisterNUICallback('transferContract', function(data,cb) cb(lib.callback.await('tommy_boosting:cb:transferContract', false, data)) end)
